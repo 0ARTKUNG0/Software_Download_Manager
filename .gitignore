@@ -1,0 +1,281 @@
+# ==============================================
+# Software Download Manager - .gitignore
+# ==============================================
+
+# ==============================================
+# Laravel Backend
+# ==============================================
+
+# Laravel-specific files
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/.phpunit.result.cache
+backend/Homestead.json
+backend/Homestead.yaml
+backend/auth.json
+backend/npm-debug.log
+backend/yarn-error.log
+
+# Laravel directories
+backend/bootstrap/compiled.php
+backend/vendor/
+backend/node_modules/
+backend/storage/*.key
+backend/storage/app/public/*
+!backend/storage/app/public/.gitkeep
+!backend/storage/app/public/downloads/
+backend/storage/app/public/downloads/*
+!backend/storage/app/public/downloads/.gitkeep
+backend/storage/framework/cache/data/*
+!backend/storage/framework/cache/data/.gitkeep
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitkeep
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitkeep
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitkeep
+backend/storage/logs/*.log
+backend/storage/app/temp/*
+!backend/storage/app/temp/.gitkeep
+
+# PHP specific
+backend/*.cache
+backend/*.log
+backend/.DS_Store
+backend/Thumbs.db
+
+# IDE files
+backend/.idea/
+backend/.vscode/
+backend/*.swp
+backend/*.swo
+
+# ==============================================
+# React Frontend
+# ==============================================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Production builds
+frontend/build/
+frontend/dist/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/lerna-debug.log*
+
+# Runtime data
+frontend/pids
+frontend/*.pid
+frontend/*.seed
+frontend/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+frontend/coverage/
+frontend/*.lcov
+
+# nyc test coverage
+frontend/.nyc_output
+
+# Dependency directories
+frontend/jspm_packages/
+
+# Optional npm cache directory
+frontend/.npm
+
+# Optional eslint cache
+frontend/.eslintcache
+
+# Microbundle cache
+frontend/.rpt2_cache/
+frontend/.rts2_cache_cjs/
+frontend/.rts2_cache_es/
+frontend/.rts2_cache_umd/
+
+# Optional REPL history
+frontend/.node_repl_history
+
+# Output of 'npm pack'
+frontend/*.tgz
+
+# Yarn Integrity file
+frontend/.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+frontend/.cache
+frontend/.parcel-cache
+
+# Next.js build output
+frontend/.next
+
+# Nuxt.js build / generate output
+frontend/.nuxt
+frontend/dist
+
+# Gatsby files
+frontend/.cache/
+frontend/public
+
+# Storybook build outputs
+frontend/.out
+frontend/.storybook-out
+
+# Temporary folders
+frontend/tmp/
+frontend/temp/
+
+# ==============================================
+# General Project Files
+# ==============================================
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Backup files
+*.bak
+*.backup
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# ==============================================
+# Project Specific
+# ==============================================
+
+# Installer files (optional - remove if you want to track them)
+# *.exe
+# *.msi
+# *.dmg
+# *.pkg
+
+# Database files
+*.sqlite
+*.db
+
+# Configuration files with sensitive data
+config.local.*
+secrets.*
+
+# Test files
+test-results/
+coverage-reports/
+
+# Documentation builds
+docs/build/
+
+# Deployment files
+deploy.sh
+deploy.bat
+
+# ==============================================
+# Package Manager Files
+# ==============================================
+
+# Composer
+composer.phar
+composer.lock.bak
+
+# NPM
+package-lock.json.bak
+yarn.lock.bak
+
+# ==============================================
+# Development Tools
+# ==============================================
+
+# PHPUnit
+backend/.phpunit.result.cache
+backend/phpunit.xml
+backend/coverage.xml
+
+# Jest
+frontend/coverage/
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+
+# ==============================================
+# Server Files
+# ==============================================
+
+# Apache
+.htaccess.bak
+
+# Nginx
+nginx.conf.bak
+
+# ==============================================
+# Security
+# ==============================================
+
+# Private keys
+*.pem
+*.key
+*.crt
+*.csr
+
+# Environment variables
+.env*
+!.env.example
+
+# SSH keys
+id_rsa
+id_rsa.pub
+
+# ==============================================
+# Miscellaneous
+# ==============================================
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
