@@ -75,17 +75,24 @@ const Dashboard = () => {
   const handleDownload = async (softwareIds) => {
     setDownloading(true);
     const token = localStorage.getItem('token');
+    // Force Cloudflare URL for downloads
+    const BASE_URL = 'https://alloy-shaped-composed-southern.trycloudflare.com';
+    
+    console.log('🔗 Using download URL:', BASE_URL);
     
     try {
       const ids = Array.isArray(softwareIds) ? softwareIds : [softwareIds];
       
       if (ids.length === 1) {
         // Single file download
-        const downloadUrl = `http://localhost:8000/api/download-file/${ids[0]}?token=${token}`;
+        const downloadUrl = `${BASE_URL}/api/download-file/${ids[0]}?token=${token}`;
+        console.log('📥 Single download URL:', downloadUrl);
         window.open(downloadUrl, '_blank');
       } else {
-        // Multiple files download as ZIP
-        const response = await fetch('http://localhost:8000/api/download-multiple', {
+        // Multiple files download as ZIP - show progress message
+        console.log('📦 Starting ZIP creation for', ids.length, 'files...');
+        
+        const response = await fetch(`${BASE_URL}/api/download-multiple`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -97,18 +104,21 @@ const Dashboard = () => {
         });
         
         if (response.ok) {
+          console.log('✅ ZIP created successfully, starting download...');
           // Get the blob and create download
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'sdm.zip'; // Your requested ZIP name
+          a.download = 'software_bundle.zip'; // Updated ZIP name
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
+          console.log('📥 Download started successfully');
         } else {
-          throw new Error('Download failed');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Download failed');
         }
       }
       

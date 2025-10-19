@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Force the correct API URL for Cloudflare Tunnel
+const API_BASE_URL = 'https://alloy-shaped-composed-southern.trycloudflare.com/api';
+
+// Always log the API URL being used (for debugging)
+console.log('🌐 FORCED API Base URL:', API_BASE_URL);
+console.log('🔧 Environment Check:', {
+  REACT_APP_API_BASE_URL: process.env.REACT_APP_API_BASE_URL,
+  NODE_ENV: process.env.NODE_ENV,
+  FORCED_URL: API_BASE_URL
+});
 
 // Create axios instance
 const api = axios.create({
