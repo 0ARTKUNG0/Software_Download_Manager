@@ -22,7 +22,7 @@ const Dashboard = () => {
   
   const hasFetched = useRef(false);
   const navigate = useNavigate();
-  const categories = ['All', 'Browser', 'Development', 'Utilities', 'Media', 'Gaming', 'Document', 'Productivity', 'Communication'];
+  const categories = ['All', 'Browser', 'Development', 'Utility', 'Media', 'Gaming', 'Document', 'Productivity', 'Communication'];
 
   useEffect(() => {
     fetchData();

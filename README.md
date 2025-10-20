@@ -1,10 +1,10 @@
 # 🚀 Software Download Manager
 
-A modern, full-stack web application for managing and distributing software installers with secure authentication and bulk download capabilities.
+A modern, full-stack web application for managing and distributing software installers with secure authentication, bulk downloads, and customizable setup bundles.
 
 ![Tech Stack](https://img.shields.io/badge/Laravel-10-red)
 ![Tech Stack](https://img.shields.io/badge/React-18-blue)
-![Tech Stack](https://img.shields.io/badge/PHP-8.0+-purple)
+![Tech Stack](https://img.shields.io/badge/PHP-8.1+-purple)
 ![Tech Stack](https://img.shields.io/badge/MySQL-8.0+-orange)
 
 ## 📋 Table of Contents
@@ -15,7 +15,6 @@ A modern, full-stack web application for managing and distributing software inst
 - [Manual Setup](#-manual-setup)
 - [API Documentation](#-api-documentation)
 - [Usage Guide](#-usage-guide)
-- [File Storage](#-file-storage)
 - [Troubleshooting](#-troubleshooting)
 
 ## ✨ Features
@@ -32,32 +31,43 @@ A modern, full-stack web application for managing and distributing software inst
 - **Category Filtering** - Filter by Browsers, Development, Media, Gaming, Utilities
 - **File Information** - Display file sizes, categories, and descriptions
 
+### 🎁 Setup Bundles (NEW!)
+- **Create Custom Bundles** - Save frequently used software combinations
+- **Quick Apply** - Load saved bundles with one click
+- **Bundle Management** - Edit, delete, and organize your setup profiles
+- **Download Bundles** - Get all bundle software as single ZIP file
+- **Export Scripts** - Generate PowerShell installation scripts for bundles
+
 ### 📥 Download System
 - **Single Downloads** - Click to download individual installers
-- **Bulk ZIP Downloads** - Select multiple files, get "sdm.zip" bundle
-- **Real File Storage** - Actual installer files stored in backend
+- **Bulk ZIP Downloads** - Select multiple files, get "SDM.zip" bundle
+- **Streaming ZIP Creation** - Fast downloads without temporary files
+- **Clean Filenames** - Downloads show only installer names, no server paths
+- **Real File Storage** - Actual installer files stored securely in backend
 - **Progress Indicators** - Visual feedback during downloads
-- **Download History** - Track what users download
 
 ### 🎨 Modern UI/UX
 - **Responsive Design** - Works on desktop, tablet, and mobile
-- **Tailwind CSS** - Modern, clean interface
+- **Gradient Design** - Modern blue-to-indigo gradient interface
+- **Toast Notifications** - Real-time feedback for all actions
 - **Loading States** - Smooth user experience
 - **Error Handling** - User-friendly error messages
 - **Interactive Cards** - Hover effects and smooth transitions
+- **Selection State** - Visual indicators for selected software
 
 ## 🛠 Tech Stack
 
 ### Backend
-- **Framework:** Laravel 10 (PHP 8.0+)
+- **Framework:** Laravel 10 (PHP 8.1+)
 - **Database:** MySQL 8.0+
-- **Authentication:** tymon/jwt-auth
+- **Authentication:** tymon/jwt-auth (JWT tokens)
+- **ZIP Streaming:** stechstudio/laravel-zipstream v5.7
 - **Storage:** Local file system
 - **API:** RESTful JSON API
 
 ### Frontend
 - **Framework:** React 18
-- **Routing:** React Router v6
+- **Routing:** React Router v7
 - **Styling:** Tailwind CSS 3
 - **HTTP Client:** Axios
 - **Build Tool:** Create React App
@@ -66,69 +76,110 @@ A modern, full-stack web application for managing and distributing software inst
 - **Package Managers:** Composer, npm
 - **Automation:** Windows Batch scripts
 - **Version Control:** Git
-- **Environment:** XAMPP, Node.js
 
 ## 📁 Project Structure
 
 ```
 Software_Download_Manager/
 ├── 📂 backend/                          # Laravel API Backend
-│   ├── 📂 app/Http/Controllers/         # API Controllers
-│   │   ├── AuthController.php           # User authentication
-│   │   ├── SoftwareController.php       # Software CRUD
-│   │   └── DownloadController.php       # File downloads
+│   ├── 📂 app/
+│   │   ├── 📂 Http/Controllers/
+│   │   │   ├── AuthController.php       # User authentication
+│   │   │   ├── SoftwareController.php   # Software CRUD
+│   │   │   ├── BundleController.php     # Bundle management (NEW)
+│   │   │   └── DownloadController.php   # File downloads & ZIP streaming
+│   │   └── 📂 Models/
+│   │       ├── User.php                 # User model
+│   │       ├── Software.php             # Software model
+│   │       ├── Bundle.php               # Bundle model (NEW)
+│   │       └── BundleItem.php           # Bundle items model (NEW)
 │   ├── 📂 database/
 │   │   ├── 📂 migrations/               # Database schema
 │   │   └── 📂 seeders/                  # Sample data
 │   ├── 📂 storage/app/public/downloads/ # Installer files
-│   └── 📂 routes/api.php               # API routes
+│   ├── 📂 routes/api.php               # API routes
+│   └── 📂 config/cors.php              # CORS configuration
 │
 ├── 📂 frontend/                         # React Frontend
 │   ├── 📂 src/
 │   │   ├── 📂 components/
-│   │   │   ├── Dashboard.js             # Main dashboard
+│   │   │   ├── Dashboard.js             # Main dashboard with bundles
 │   │   │   ├── Login.js                 # Login form
 │   │   │   ├── Register.js              # Registration form
 │   │   │   └── ProtectedRoute.js        # Route protection
 │   │   ├── 📂 services/
-│   │   │   └── api.js                   # API client
+│   │   │   └── api.js                   # API client with download helpers
 │   │   └── App.js                       # Main app component
-│   └── 📂 public/                       # Static assets
+│   ├── 📂 public/                       # Static assets
+│   └── .env                             # Environment variables
 │
 ├── 🔧 setup-backend.bat                 # Backend setup automation
 ├── 🔧 setup-frontend.bat                # Frontend setup automation
 ├── 🔧 run-migrations.bat                # Database setup automation
+├── 📖 README.md                         # This file
+├── 📖 BUNDLES_FEATURE_GUIDE.md         # Bundles feature documentation
+└── 📖 IMPLEMENTATION_SUMMARY.md        # Implementation details
+```
 └── 📖 README.md                         # This file
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **PHP 8.0+** with extensions: bcmath, ctype, fileinfo, json, mbstring, openssl, pdo, tokenizer, xml
+- **PHP 8.1+** with extensions: bcmath, ctype, fileinfo, json, mbstring, openssl, pdo, tokenizer, xml
 - **Composer** (latest version)
 - **Node.js 16+** and npm
-- **MySQL 8.0+** (XAMPP recommended)
+- **MySQL 8.0+** or MariaDB
 - **Git** (for cloning)
 
-### 1️⃣ Clone Repository
+### Installation Steps
+
+1️⃣ **Clone Repository**
 ```bash
-git clone <your-repository-url>
+git clone <repository-url>
 cd Software_Download_Manager
 ```
 
-### 2️⃣ Automated Setup (Recommended)
+2️⃣ **Setup Backend** (Automated)
 ```cmd
-# 1. Setup backend
 setup-backend.bat
+```
+This will:
+- Install Composer dependencies
+- Copy `.env.example` to `.env`
+- Generate application key
+- Generate JWT secret
 
-# 2. Setup database
-run-migrations.bat
+3️⃣ **Configure Database**
 
-# 3. Setup frontend
-setup-frontend.bat
+Edit `backend/.env` with your database credentials:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=software_download_manager
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 ```
 
-### 3️⃣ Start Servers
+4️⃣ **Setup Database** (Automated)
+```cmd
+run-migrations.bat
+```
+This will:
+- Run all migrations (users, software, bundles tables)
+- Seed sample software data
+- Create storage symlink
+
+5️⃣ **Setup Frontend** (Automated)
+```cmd
+setup-frontend.bat
+```
+This will:
+- Install npm dependencies
+- Check environment configuration
+
+6️⃣ **Start Servers**
 ```cmd
 # Terminal 1: Backend
 cd backend
@@ -139,9 +190,15 @@ cd frontend
 npm start
 ```
 
-### 4️⃣ Access Application
+7️⃣ **Access Application**
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:8000/api
+
+### First Time Usage
+1. Register a new account at http://localhost:3000
+2. Login with your credentials
+3. Browse the software catalog
+4. Try creating a bundle with multiple software selections
 
 ## 🔧 Manual Setup
 
@@ -178,78 +235,199 @@ cd frontend
 # Install dependencies
 npm install
 
+# Configure environment (if needed)
+# Edit .env file to set API URL
+
 # Start development server
 npm start
 ```
 
-### Database Configuration
-Update `backend/.env`:
+### Environment Configuration
+
+**Backend** (`backend/.env`):
 ```env
+APP_NAME="Software Download Manager"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=software_download_manager
 DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_PASSWORD=
 
-JWT_SECRET=your_generated_secret
+JWT_SECRET=(auto-generated)
+JWT_TTL=60
+```
+
+**Frontend** (`frontend/.env`):
+```env
+REACT_APP_API_BASE_URL=http://localhost:8000/api
+REACT_APP_NAME="Software Download Manager"
+```
+
+**Note:** React requires restart after `.env` changes!
+php artisan migrate
+php artisan db:seed
+
+# Create storage symlink
+php artisan storage:link
+
+# Start server
+php artisan serve
 ```
 
 ## 📚 API Documentation
 
 ### Authentication Endpoints
+
+**Register**
 ```http
 POST /api/register
 Content-Type: application/json
 
 {
   "name": "John Doe",
-  "email": "john@example.com", 
+  "email": "user@example.com", 
   "password": "password123",
   "password_confirmation": "password123"
 }
 ```
 
+**Login**
 ```http
 POST /api/login
 Content-Type: application/json
 
 {
-  "email": "john@example.com",
+  "email": "user@example.com",
   "password": "password123"
+}
+
+Response:
+{
+  "success": true,
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "user": { "id": 1, "name": "John Doe", "email": "user@example.com" }
 }
 ```
 
-### Protected Endpoints (Require JWT Token)
+**Logout**
+```http
+POST /api/logout
+Authorization: Bearer {token}
+```
+
+### Software Endpoints
+
+**List All Software**
 ```http
 GET /api/software
-Authorization: Bearer {your_jwt_token}
+Authorization: Bearer {token}
 ```
 
+**Get Single Software**
 ```http
-GET /api/download-file/{id}?token={your_jwt_token}
+GET /api/software/{id}
+Authorization: Bearer {token}
 ```
 
+### Bundle Endpoints (NEW)
+
+**List User Bundles**
+```http
+GET /api/bundles
+Authorization: Bearer {token}
+```
+
+**Create Bundle**
+```http
+POST /api/bundles
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Web Development Setup",
+  "description": "Essential tools for web dev",
+  "software_ids": [1, 3, 5, 8]
+}
+```
+
+**Get Bundle Details**
+```http
+GET /api/bundles/{id}
+Authorization: Bearer {token}
+```
+
+**Update Bundle**
+```http
+PUT /api/bundles/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Updated Bundle Name",
+  "software_ids": [1, 2, 3]
+}
+```
+
+**Delete Bundle**
+```http
+DELETE /api/bundles/{id}
+Authorization: Bearer {token}
+```
+
+### Download Endpoints
+
+**Download Single File**
+```http
+GET /api/download-file/{id}?token={jwt_token}
+```
+
+**Download Multiple Files (ZIP)**
 ```http
 POST /api/download-multiple
-Authorization: Bearer {your_jwt_token}
+Authorization: Bearer {token}
 Content-Type: application/json
 
 {
   "software_ids": [1, 2, 3]
 }
+
+Response: Streams "SDM.zip" file
+```
+
+**Download Bundle as ZIP**
+```http
+GET /api/bundles/{id}/download
+Authorization: Bearer {token}
+
+Response: Streams "SDM-{bundle-name}.zip" file
+```
+
+**Export Bundle PowerShell Script**
+```http
+GET /api/bundles/{id}/export-script
+Authorization: Bearer {token}
+
+Response: Downloads .ps1 installation script
 ```
 
 ### Response Formats
+
+**Success Response**
 ```json
-// Success Response
 {
   "success": true,
   "message": "Operation successful",
   "data": { ... }
 }
+```
 
-// Error Response  
+**Error Response**
+```json
 {
   "success": false,
   "message": "Error description",
@@ -257,79 +435,99 @@ Content-Type: application/json
 }
 ```
 
+**Validation Error (422)**
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "email": ["The email field is required."]
+  }
+}
+```
+
 ## 👥 Usage Guide
 
-### For End Users
+### Getting Started
 
-1. **Registration**
-   - Visit http://localhost:3000
-   - Click "Register" and fill in your details
-   - Verify your account is created
+**1. Registration**
+- Visit the application homepage
+- Click "Register" 
+- Fill in your name, email, and password
+- Submit to create your account
 
-2. **Login**
-   - Enter your email and password
-   - You'll be redirected to the dashboard
+**2. Login**
+- Enter your email and password
+- Click "Login"
+- You'll be redirected to the dashboard
 
-3. **Browse Software**
-   - View all available software in card format
-   - Use search to find specific software
-   - Filter by categories (Browsers, Development, etc.)
+### Using the Dashboard
 
-4. **Download Software**
-   - **Single Download:** Click "Download" on any software card
-   - **Bulk Download:** Select multiple checkboxes, click "Download Selected"
-   - **ZIP Downloads:** Multiple selections create "sdm.zip" bundle
+**Browse Software**
+- View all available software in card format
+- Each card shows:
+  - Software name and description
+  - Category badge
+  - File size
+  - Download button
 
-### For Administrators
+**Search & Filter**
+- **Search Bar:** Type to find software by name or description
+- **Category Filter:** Select category (All, Browser, Development, Utilities, Media, Gaming, Document, Productivity, Communication)
 
-1. **Add New Software**
-   - Place installer files in `backend/storage/app/public/downloads/`
-   - Update database with software metadata
-   - Files become available immediately
+**Download Software**
 
-2. **Manage Users**
-   - View user activity in database
-   - Monitor download patterns
-   - Manage access permissions
+*Single Download:*
+1. Click the "Download" button on any software card
+2. File downloads immediately with clean filename
 
-## 💾 File Storage
+*Multiple Downloads:*
+1. Check the boxes on multiple software cards
+2. Click "Download Selected (X files)" button at top
+3. Receive "SDM.zip" containing all selected installers
+4. Files inside ZIP have clean names (no server paths)
 
-### Current Software Catalog
-The system includes these pre-configured installers:
+### Working with Bundles
 
-**🌐 Browsers**
-- Google Chrome (`chrome_installer.exe`)
-- Mozilla Firefox (`firefox_installer.exe`)
+**Create a Bundle**
+1. Select software using checkboxes
+2. Enter bundle name (e.g., "Web Development Setup")
+3. Optionally add description
+4. Click "Save Bundle"
+5. Toast notification confirms creation
 
-**⚒️ Development**  
-- Visual Studio Code (`vscode_installer.exe`)
-- Git (`git_installer.exe`)
-- Notepad++ (`notepadpp_installer.exe`)
+**Manage Bundles**
+- View all your saved bundles in the "My Bundles" section
+- Each bundle shows:
+  - Bundle name and description
+  - Number of software items
+  - Action buttons (Apply, Download, Export, Delete)
 
-**🎵 Media**
-- Spotify (`spotify_installer.exe`)
-- VLC Media Player (`vlc_installer.exe`)
-- OBS Studio (`obs_installer.exe`)
+**Apply a Bundle**
+1. Click "Apply" button on any bundle
+2. Dashboard automatically selects all software in that bundle
+3. You can then add/remove selections before downloading
 
-**🎮 Gaming**
-- Discord (`discord_installer.exe`)
-- Steam (`steam_installer.exe`)
-- Epic Games Launcher (`epicgames_installer.msi`)
-- Minecraft (`minecraft_installer.msi`)
+**Download Bundle**
+1. Click "Download Bundle" button
+2. Receive ZIP file named "SDM-{bundle-name}.zip"
+3. Contains all software from the bundle
 
-**🔧 Utilities**
-- 7-Zip (`7zip_installer.exe`)
-- Java Runtime (`java_installer.exe`)
-- WhatsApp Desktop (`whatsapp_installer.exe`)
-- Zoom (`zoom_installer.exe`)
+**Export PowerShell Script**
+1. Click "Export Script" button
+2. Downloads .ps1 file
+3. Run script to automatically download and install all bundle software
 
-### Adding New Software
-1. Place installer file in `backend/storage/app/public/downloads/`
-2. Add database entry with metadata:
-   ```sql
-   INSERT INTO software (name, description, size, category, file_name, link) 
-   VALUES ('Software Name', 'Description', file_size_in_bytes, 'Category', 'filename.exe', 'https://website.com');
-   ```
+**Delete Bundle**
+1. Click "Delete" button (trash icon)
+2. Confirm deletion
+3. Bundle is permanently removed
+
+### Tips & Best Practices
+
+- **Save Common Setups:** Create bundles for frequent use cases (e.g., "New PC Setup", "Gaming Setup")
+- **Use Search Efficiently:** Type partial names to quickly find software
+- **Check File Sizes:** Consider bandwidth before downloading large bundles
+- **Keep Bundles Updated:** Edit bundles when your needs change
 
 ## 🐛 Troubleshooting
 
@@ -338,36 +536,106 @@ The system includes these pre-configured installers:
 **"Backend connection failed"**
 - ✅ Ensure backend server is running (`php artisan serve`)
 - ✅ Check database connection in `.env`
-- ✅ Verify API endpoints are accessible
+- ✅ Verify MySQL/MariaDB service is running
+- ✅ Test API endpoint: `http://localhost:8000/api/software`
 
 **"JWT Secret not found"** 
 - ✅ Run `php artisan jwt:secret`
-- ✅ Check `.env` has `JWT_SECRET=...`
+- ✅ Check `.env` has `JWT_SECRET=...` entry
+- ✅ Clear config cache: `php artisan config:clear`
 - ✅ Restart backend server
 
 **"CORS errors in browser"**
-- ✅ Verify `config/cors.php` allows `http://localhost:3000`
-- ✅ Clear browser cache
-- ✅ Check network tab for specific error
+- ✅ Verify `config/cors.php` allows your frontend URL
+- ✅ Check `Access-Control-Allow-Origin` header in browser DevTools
+- ✅ Clear browser cache and cookies
+- ✅ Restart both backend and frontend servers
 
 **"Files not downloading"**
-- ✅ Run `php artisan storage:link` 
+- ✅ Run `php artisan storage:link` to create symlink
 - ✅ Check file permissions on `storage/` directory
 - ✅ Verify files exist in `storage/app/public/downloads/`
+- ✅ Check browser console for download errors
 
 **"Frontend won't start"**
-- ✅ Run `npm install` to update dependencies
-- ✅ Check Node.js version (16+ required)
-- ✅ Try `npm start -- --reset-cache`
+- ✅ Delete `node_modules` and run `npm install`
+- ✅ Check Node.js version: `node --version` (16+ required)
+- ✅ Clear React cache: `npm start -- --reset-cache`
+- ✅ Check port 3000 is not already in use
+
+**"Frontend can't connect after using Cloudflare Tunnel"**
+- ✅ Update `frontend/.env` with tunnel URL: `REACT_APP_API_BASE_URL=https://your-tunnel-url.trycloudflare.com/api`
+- ✅ **IMPORTANT:** Restart React dev server after changing `.env` (React only reads environment variables at startup)
+- ✅ Verify tunnel is still running (Cloudflare free tunnels expire)
+
+**"ZIP downloads show full server paths"**
+- ✅ This has been fixed - files should show clean names only
+- ✅ If still occurring, clear Laravel cache: `php artisan config:clear`
+- ✅ Verify you're using latest DownloadController code
+
+**"Category filter doesn't work"**
+- ✅ Database category names must match filter dropdown exactly
+- ✅ Check for spelling: "Utilities" (plural) not "Utility" (singular)
+- ✅ Category names are case-insensitive
 
 ### Debug Mode
+
 Enable detailed logging in `backend/.env`:
 ```env
 APP_DEBUG=true
 LOG_LEVEL=debug
 ```
 
-View logs: `backend/storage/logs/laravel.log`
+View logs at: `backend/storage/logs/laravel.log`
+
+Clear all caches:
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+```
+
+### Database Issues
+
+**Reset database:**
+```bash
+php artisan migrate:fresh --seed
+```
+⚠️ Warning: This deletes all data!
+
+**Check database connection:**
+```bash
+php artisan tinker
+>>> DB::connection()->getPdo();
+```
+
+## 🌐 Deployment
+
+### Production Checklist
+
+**Backend:**
+1. Set `APP_ENV=production` and `APP_DEBUG=false` in `.env`
+2. Run `composer install --optimize-autoloader --no-dev`
+3. Run `php artisan config:cache`
+4. Run `php artisan route:cache`
+5. Run `php artisan view:cache`
+6. Set proper file permissions (755 for directories, 644 for files)
+7. Ensure `storage/` and `bootstrap/cache/` are writable
+
+**Frontend:**
+1. Update `REACT_APP_API_BASE_URL` in `.env` to production API URL
+2. Run `npm run build`
+3. Serve the `build/` folder via web server (Nginx, Apache, etc.)
+4. Configure HTTPS with SSL certificate
+
+**Security:**
+- Use strong database passwords
+- Keep JWT secrets secure and unique
+- Enable HTTPS for production
+- Set proper CORS allowed origins
+- Regularly update dependencies
+- Monitor logs for suspicious activity
 
 ## 🤝 Contributing
 
@@ -379,13 +647,18 @@ View logs: `backend/storage/logs/laravel.log`
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 👨‍💻 Author
+## 📚 Additional Documentation
 
-**จารนรพร 3_68 เทอม 1**  
-NPRU Work Project  
+- **[Bundles Feature Guide](BUNDLES_FEATURE_GUIDE.md)** - Detailed guide for the bundles/setup profiles feature
+- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
+- **[Download Optimizations](DOWNLOAD_OPTIMIZATIONS.md)** - Information about ZIP streaming performance
+
+## 👨‍💻 Credits
+
+NPRU Work Project
 
 ---
 
-**Built with ❤️ using Laravel, React, and lots of ☕**
+**Built with ❤️ using Laravel, React, and Tailwind CSS**

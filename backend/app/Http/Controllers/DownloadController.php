@@ -3,180 +3,174 @@
 namespace App\Http\Controllers;
 
 use App\Models\Software;
+use App\Models\Bundle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
-use ZipArchive;
-use Illuminate\Support\Str;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use STS\ZipStream\Facades\Zip;
 
 class DownloadController extends Controller
 {
     /**
-     * Clean up old temporary files
+     * Download single file with proper headers
      */
-    private function cleanupTempFiles()
+    public function single($id)
     {
-        $tempDir = storage_path('app/temp');
-        if (!file_exists($tempDir)) {
-            return;
-        }
-        
-        $files = glob($tempDir . '/*');
-        $now = time();
-        
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                // Delete files older than 1 hour
-                if ($now - filemtime($file) >= 3600) {
-                    unlink($file);
-                }
-            }
-        }
-    }
-    /**
-     * Download single file
-     */
-    public function downloadSingle(Request $request, $id)
-    {
-        // Handle token from query parameter for file downloads
-        if ($request->has('token')) {
-            try {
-                JWTAuth::setToken($request->token);
-                JWTAuth::checkOrFail();
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
-        }
-        
         $software = Software::findOrFail($id);
-        
-        // Check if file exists in storage
-        $filePath = 'downloads/' . $software->file_name;
-        
-        if (!Storage::disk('public')->exists($filePath)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'File not found'
-            ], 404);
-        }
-        
-        $fullPath = Storage::disk('public')->path($filePath);
-        
-        return Response::download($fullPath, $software->file_name, [
-            'Content-Type' => 'application/octet-stream',
+        $path = "public/downloads/{$software->file_name}";
+
+        abort_unless(Storage::exists($path), 404, 'File not found');
+
+        $stream = Storage::readStream($path);
+        $filename = $software->file_name;
+        $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
+
+        return response()->streamDownload(function () use ($stream) {
+            fpassthru($stream);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, $filename, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
         ]);
     }
-    
+
     /**
-     * Download multiple files as ZIP
+     * Download multiple files as ZIP (streaming, no temp file)
      */
-    public function downloadMultiple(Request $request)
+    public function zip(Request $request)
     {
-        // Clean up old temporary files first
-        $this->cleanupTempFiles();
-        
-        // Increase execution time and memory for large files
-        set_time_limit(600); // 10 minutes for very large files
-        ini_set('memory_limit', '1G'); // Increase memory limit
-        ini_set('max_input_time', '600');
-        ini_set('default_socket_timeout', '600');
-        
         $request->validate([
             'software_ids' => 'required|array',
             'software_ids.*' => 'exists:software,id'
         ]);
-        
-        $software = Software::whereIn('id', $request->software_ids)->get();
-        
-        if ($software->isEmpty()) {
+
+        $files = Software::whereIn('id', $request->software_ids)->get();
+
+        if ($files->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'No software found'
             ], 404);
         }
-        
-        // Check total file size to determine strategy
-        $totalSize = 0;
-        $validFiles = [];
-        
-        foreach ($software as $item) {
-            $filePath = Storage::disk('public')->path('downloads/' . $item->file_name);
-            if (file_exists($filePath)) {
-                $fileSize = filesize($filePath);
-                $totalSize += $fileSize;
-                $validFiles[] = [
-                    'path' => $filePath,
-                    'name' => $item->file_name,
-                    'size' => $fileSize
-                ];
-            }
-        }
-        
-        if (empty($validFiles)) {
+
+        // Simple filename: SDM.zip
+        $filename = 'SDM.zip';
+        return $this->createZipStream($files, $filename);
+    }
+
+    /**
+     * Download bundle as ZIP
+     */
+    public function zipBundle($bundleId)
+    {
+        $bundle = Bundle::with('software')->findOrFail($bundleId);
+
+        // Check if user owns the bundle
+        if ($bundle->user_id !== auth()->id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No valid files found'
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $files = $bundle->software;
+
+        if ($files->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No software in bundle'
             ], 404);
         }
-        
-        // Create temporary zip file with unique name
-        $zipFileName = 'sdm_' . time() . '_' . uniqid() . '.zip';
-        $zipPath = storage_path('app/temp/' . $zipFileName);
-        
-        // Ensure temp directory exists
-        if (!file_exists(storage_path('app/temp'))) {
-            mkdir(storage_path('app/temp'), 0755, true);
+
+        // Format: SDM-BundleName-2025-10-20.zip
+        $bundleName = \Illuminate\Support\Str::slug($bundle->name);
+        $filename = "SDM-{$bundleName}-" . now()->format('Y-m-d') . '.zip';
+        return $this->createZipStream($files, $filename);
+    }
+
+    /**
+     * Export PowerShell script for offline install
+     */
+    public function exportScript($bundleId)
+    {
+        $bundle = Bundle::with('software')->findOrFail($bundleId);
+
+        // Check if user owns the bundle
+        if ($bundle->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
         }
-        
-        $zip = new ZipArchive;
-        
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            // Set compression level for better performance vs size trade-off
-            foreach ($validFiles as $file) {
-                // For large files, use store method (no compression) for speed
-                if ($file['size'] > 100 * 1024 * 1024) { // Files larger than 100MB
-                    $zip->addFile($file['path'], $file['name']);
-                    $zip->setCompressionName($file['name'], ZipArchive::CM_STORE);
-                } else {
-                    $zip->addFile($file['path'], $file['name']);
-                    $zip->setCompressionName($file['name'], ZipArchive::CM_DEFAULT);
-                }
-                
-                // Add file info as comment
-                $zip->setCommentName($file['name'], "Size: " . number_format($file['size']) . " bytes");
-            }
-            
-            // Add total info comment to ZIP
-            $zip->setArchiveComment("Software Download Manager Bundle\nFiles: " . count($validFiles) . "\nTotal Size: " . number_format($totalSize) . " bytes\nCreated: " . date('Y-m-d H:i:s'));
-            
-            $zip->close();
-            
-            // Check if zip was created successfully
-            if (!file_exists($zipPath) || filesize($zipPath) === 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to create zip file'
-                ], 500);
-            }
-            
-            $zipSize = filesize($zipPath);
-            
-            // Return zip file for download with optimized headers
-            return Response::download($zipPath, 'software_bundle.zip', [
-                'Content-Type' => 'application/zip',
-                'Content-Length' => $zipSize,
-                'Content-Disposition' => 'attachment; filename="software_bundle.zip"',
-                'Cache-Control' => 'no-cache, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0',
-                'Accept-Ranges' => 'bytes'
-            ])->deleteFileAfterSend(true);
+
+        $files = $bundle->software;
+
+        if ($files->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No software in bundle'
+            ], 404);
         }
+
+        // Generate PowerShell script
+        $ps1 = "# Software Download Manager - Bundle: {$bundle->name}\r\n";
+        $ps1 .= "# Generated: " . now()->toDateTimeString() . "\r\n\r\n";
+        $ps1 .= "\$downloadPath = \"\$env:USERPROFILE\\Downloads\\SDM_Installers\"\r\n";
+        $ps1 .= "New-Item -ItemType Directory -Force -Path \$downloadPath | Out-Null\r\n";
+        $ps1 .= "Write-Host \"Downloading to: \$downloadPath\" -ForegroundColor Green\r\n\r\n";
+
+        foreach ($files as $file) {
+            $url = url("/api/download-file/{$file->id}");
+            $ps1 .= "# {$file->name}\r\n";
+            $ps1 .= "Write-Host \"Downloading: {$file->name}...\"\r\n";
+            $ps1 .= "Invoke-WebRequest -Uri \"{$url}\" -OutFile \"\$downloadPath\\{$file->file_name}\" -Headers @{\"Authorization\"=\"Bearer \$env:SDM_TOKEN\"}\r\n";
+            $ps1 .= "Write-Host \"  ✓ Downloaded {$file->file_name}\" -ForegroundColor Cyan\r\n\r\n";
+        }
+
+        $ps1 .= "Write-Host \"All downloads complete!\" -ForegroundColor Green\r\n";
+
+        $filename = \Illuminate\Support\Str::slug($bundle->name) . '-install.ps1';
+
+        return response($ps1, 200, [
+            'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+        ]);
+    }
+
+    /**
+     * Helper: Create ZIP stream from software collection
+     */
+    private function createZipStream($files, $filename)
+    {
+        // Start with empty ZIP
+        $zip = Zip::create($filename);
         
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to create zip file - could not open zip archive'
-        ], 500);
+        $hasFiles = false;
+        foreach ($files as $file) {
+            $path = "public/downloads/{$file->file_name}";
+            
+            if (Storage::exists($path)) {
+                // Add each file with clean name (not full path)
+                $zip->add(Storage::path($path), $file->file_name);
+                $hasFiles = true;
+            }
+        }
+
+        if (!$hasFiles) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No files available for download'
+            ], 404);
+        }
+
+        // Get the StreamedResponse and modify headers
+        $response = $zip->response();
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $response->headers->set('Access-Control-Expose-Headers', 'Content-Disposition');
+        
+        return $response;
     }
 }

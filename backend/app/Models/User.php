@@ -58,4 +58,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    /**
+     * Get the bundles for the user.
+     */
+    public function bundles()
+    {
+        return $this->hasMany(Bundle::class);
+    }
 }

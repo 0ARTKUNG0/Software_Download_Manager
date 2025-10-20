@@ -52,6 +52,17 @@
       0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     ),
   ),
+  'stechstudio/laravel-zipstream' => 
+  array (
+    'aliases' => 
+    array (
+      'Zip' => 'STS\\ZipStream\\Facades\\Zip',
+    ),
+    'providers' => 
+    array (
+      0 => 'STS\\ZipStream\\ZipStreamServiceProvider',
+    ),
+  ),
   'tymon/jwt-auth' => 
   array (
     'aliases' => 
